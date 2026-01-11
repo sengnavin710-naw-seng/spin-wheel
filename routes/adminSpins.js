@@ -27,6 +27,15 @@ router.get('/logs', async (req, res) => {
             const d = new Date();
             d.setDate(d.getDate() - 30);
             query.timestamp = { $gte: d };
+        } else if (range && /^\d{4}-\d{2}-\d{2}$/.test(range)) {
+            // Specific Date (YYYY-MM-DD)
+            const startOfDay = new Date(range);
+            startOfDay.setHours(0, 0, 0, 0);
+
+            const endOfDay = new Date(range);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            query.timestamp = { $gte: startOfDay, $lte: endOfDay };
         }
 
         // Search Filter

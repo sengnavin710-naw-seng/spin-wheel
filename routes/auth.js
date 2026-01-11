@@ -6,67 +6,52 @@ const jwt = require('jsonwebtoken');
 
 
 // สมัครสมาชิก
-router.post('/register', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ message: 'กรุณากรอก username และ password' });
-    }
-
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: 'มีผู้ใช้นี้ในระบบแล้ว' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = new User({
-      username,
-      password: hashedPassword,
-    });
-
-    await newUser.save();
-
-    res.status(201).json({ message: 'สมัครสมาชิกสำเร็จ!' });
-
-  } catch (error) {
-    console.error('Error in /register:', error);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดที่ server' });
-  }
-});
-
-// 🔐 Login route
+// ✅ Login route (Passwordless / Guest Mode)
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  // เช็คว่ามีการกรอกข้อมูลมาครบไหม
-  if (!username || !password) {
-    return res.status(400).json({ message: 'กรุณากรอก username และ password' });
-  }
-
   try {
-    // หา user จาก database
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(400).json({ message: 'ไม่พบผู้ใช้นี้ในระบบ' });
+    let { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ message: 'กรุณากรอกชื่อผู้ใช้งาน' });
     }
 
-    // เปรียบเทียบ password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'รหัสผ่านไม่ถูกต้อง' });
-    }
+    // Normalize username (trim + case insensitive for storage/lookup)
+    const normalizedUsername = username.trim();
 
-    // สร้าง token
-    const token = jwt.sign({ userId: user._id }, 'mysecretkey', {
-      expiresIn: '1h',
+    // 1. Find user (Case Insensitive)
+    let user = await User.findOne({
+      username: { $regex: new RegExp(`^${normalizedUsername}$`, 'i') }
     });
 
-    // Save user to session (Crucial for socket presence binding)
+    // 2. If not found, Auto-Register (Guest)
+    if (!user) {
+      console.log(`[Auth] Creating new guest user: ${normalizedUsername}`);
+      user = new User({
+        username: normalizedUsername,
+        role: 'user', // Default role
+        // No password needed
+      });
+      await user.save();
+
+      // Realtime: Notify Admin of new user
+      const io = req.app.get('io');
+      if (io) io.of('/admin').emit('user:new', user);
+    }
+
+    // 3. User Exists: Check if Blocked
+    if (user.isBlocked) {
+      return res.status(403).json({ message: 'บัญชีของคุณถูกระงับการใช้งาน' });
+    }
+
+    // 4. Create Token (Standard JWT)
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'mysecretkey', {
+      expiresIn: '24h',
+    });
+
+    // 5. Save Session (for Socket.IO presence)
     req.session.user = { id: user._id, username: user.username };
 
-    // Realtime Updates
+    // Realtime: Notify Admin of Login
     const io = req.app.get('io');
     if (io) {
       io.of('/admin').emit('user:login', { username: user.username, id: user._id });
@@ -74,8 +59,9 @@ router.post('/login', async (req, res) => {
     const { broadcastKpis } = require('../utils/socketHandler');
     await broadcastKpis();
 
-    // ส่ง token กลับไป
-    res.json({ message: 'เข้าสู่ระบบสำเร็จ', token });
+    // Success response
+    res.json({ message: 'เข้าสู่ระบบสำเร็จ', token, username: user.username });
+
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'เกิดข้อผิดพลาดที่ server' });

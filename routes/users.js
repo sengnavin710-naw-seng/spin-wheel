@@ -57,5 +57,35 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ message: 'Error updating user' });
     }
 });
+// PUT /api/admin/users/:id/block (Toggle Block)
+router.put('/:id/block', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.role === 'admin') {
+            return res.status(400).json({ message: 'Cannot block admin' });
+        }
+
+        user.isBlocked = !user.isBlocked;
+        await user.save();
+
+        // Realtime: Force logout if blocked? 
+        // For now just emit event
+        const io = req.app.get('io');
+        if (io) {
+            io.of('/admin').emit('user:update', { id: user._id, isBlocked: user.isBlocked });
+            // Should arguably also emit to user's socket to disconnect them
+            if (user.isBlocked) {
+                // Logic to disconnect specific user socket could go here if needed
+            }
+        }
+
+        res.json({ ok: true, message: `User ${user.isBlocked ? 'Blocked' : 'Unblocked'}`, isBlocked: user.isBlocked });
+    } catch (error) {
+        console.error("Block User Error", error);
+        res.status(500).json({ message: 'Error blocking user' });
+    }
+});
 
 module.exports = router;

@@ -31,9 +31,14 @@ router.post('/spin', async (req, res) => {
 
         const normalizedCode = code.toUpperCase().trim();
 
-        // Find the user first
-        const user = await User.findOne({ username });
+        // Find the user first (Case Insensitive)
+        const normalizedUsername = username.trim();
+        const user = await User.findOne({
+            username: { $regex: new RegExp(`^${normalizedUsername}$`, 'i') }
+        });
+
         if (!user) {
+            console.log(`[Spin] User not found: '${username}'`);
             return res.status(404).json({ message: 'User not found' });
         }
 

@@ -8,12 +8,16 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false, // Password is now optional for guest/passwordless login
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
