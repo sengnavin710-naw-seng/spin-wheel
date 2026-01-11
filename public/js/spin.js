@@ -199,14 +199,8 @@ const App = {
 
         if (State.isSpinning) return;
 
-        // 1. Check for Demo/Admin Code (Client-Side bypass)
-        if (code === Config.adminCode) {
-            State.isSpinning = true;
-            spinBtn.disabled = true;
-            const winningIndex = Math.floor(Math.random() * Config.prizes.length);
-            this.animateWheel(winningIndex);
-            return;
-        }
+        // 1. Check for Demo/Admin Code (Client-Side bypass) - REMOVED
+
 
         // 2. Call Backend API
         try {

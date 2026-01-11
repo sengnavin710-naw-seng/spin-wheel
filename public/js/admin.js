@@ -242,10 +242,19 @@ const AdminApp = {
             if (data.ok && data.users) {
                 tbody.innerHTML = data.users.map(u => `
                     <tr>
-                        <td style="font-weight:500">${u.username}</td>
+                        <td style="font-weight:500">
+                            ${u.username} 
+                            ${u.isBlocked ? '<span class="badge" style="background:#ef4444; color:white; font-size:10px; margin-left:4px;">BLOCKED</span>' : ''}
+                        </td>
                         <td><span class="badge ${u.role === 'admin' ? 'active' : 'disabled'}">${u.role}</span></td>
                         <td style="color:var(--text-muted)">${new Date(u.createdAt).toLocaleDateString()}</td>
                         <td style="text-align:right">
+                            ${u.role !== 'admin' ? `
+                                <button onclick="AdminApp.toggleUserBlock('${u._id}')" class="btn-sm" 
+                                    style="margin-right:4px; border:1px solid ${u.isBlocked ? 'var(--success)' : '#ef4444'}; color:${u.isBlocked ? 'var(--success)' : '#ef4444'}; background:transparent;">
+                                    ${u.isBlocked ? 'Unblock' : 'Block'}
+                                </button>
+                            ` : ''}
                             <button onclick="AdminApp.openEditUser('${u._id}', '${u.username}')" class="btn-primary btn-sm" style="background:var(--bg-body); color:var(--primary); border:1px solid var(--border-color)">Edit</button>
                         </td>
                     </tr>
@@ -293,9 +302,45 @@ const AdminApp = {
         }
     },
 
+    toggleUserBlock: async function (id) {
+        if (!confirm('Are you sure you want to change block status for this user?')) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}/block`, {
+                method: 'PUT',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.ok) {
+                this.showToast(data.message, 'success');
+                this.loadUsers();
+            } else {
+                this.showToast(data.message || 'Error', 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            this.showToast('Connection error', 'error');
+        }
+    },
+
+    handleDateFilterChange: function (val) {
+        this.loadSpinLogs();
+    },
+
     loadSpinLogs: async function () {
         const rangeEl = document.getElementById('logsFilterRange');
-        const range = rangeEl ? rangeEl.value : 'today';
+        let range = rangeEl ? rangeEl.value : 'today';
+        const dateInput = document.getElementById('logsDateInput');
+
+        if (range === 'custom') {
+            if (dateInput) {
+                dateInput.classList.remove('hidden');
+                if (!dateInput.value) return; // Wait for input
+                range = dateInput.value;
+            }
+        } else {
+            if (dateInput) dateInput.classList.add('hidden');
+        }
+
         try {
             const res = await fetch(`${API_BASE_URL}/api/admin/spin-codes/logs?range=${range}&limit=50`, { credentials: 'include' });
             const data = await res.json();
