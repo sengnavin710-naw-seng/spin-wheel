@@ -1,0 +1,44 @@
+{
+    "nav": {
+        "title": "ลัคกี้ สปิน",
+        "logout": "ออกจากระบบ"
+    },
+    "spin": {
+        "enterCode": "กรอกรหัส",
+        "spinNow": "หมุนเลย!",
+        "spinning": "กำลังหมุน..."
+    },
+    "history": {
+        "title": "ประวัติ",
+        "time": "เวลา",
+        "user": "ผู้ใช้",
+        "prize": "รางวัล",
+        "noHistory": "ยังไม่มีประวัติการหมุน",
+        "filterByDate": "กรองตามวันที่"
+    },
+    "auth": {
+        "login": "เข้าสู่ระบบ",
+        "register": "สมัครสมาชิก",
+        "username": "ชื่อผู้ใช้",
+        "password": "รหัสผ่าน",
+        "confirmPassword": "ยืนยันรหัสผ่าน",
+        "loginSuccess": "เข้าสู่ระบบสำเร็จ!",
+        "registerSuccess": "สมัครสมาชิกสำเร็จ!",
+        "invalidCredentials": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"
+    },
+    "messages": {
+        "congrats": "ยินดีด้วย!",
+        "youWon": "คุณได้รับ",
+        "invalidCode": "รหัสไม่ถูกต้อง",
+        "codeUsed": "รหัสถูกใช้แล้ว",
+        "error": "เกิดข้อผิดพลาด"
+    },
+    "common": {
+        "loading": "กำลังโหลด...",
+        "save": "บันทึก",
+        "cancel": "ยกเลิก",
+        "confirm": "ยืนยัน",
+        "delete": "ลบ",
+        "edit": "แก้ไข"
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "nav": {
+        "title": "LUCKY SPIN",
+        "logout": "Logout"
+    },
+    "spin": {
+        "enterCode": "ENTER CODE",
+        "spinNow": "SPIN NOW",
+        "spinning": "SPINNING..."
+    },
+    "history": {
+        "title": "HISTORY",
+        "time": "TIME",
+        "user": "USER",
+        "prize": "PRIZE",
+        "noHistory": "No spin history yet",
+        "filterByDate": "Filter by date"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "username": "Username",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "loginSuccess": "Login successful!",
+        "registerSuccess": "Registration successful!",
+        "invalidCredentials": "Invalid username or password"
+    },
+    "messages": {
+        "congrats": "Congratulations!",
+        "youWon": "You won",
+        "invalidCode": "Invalid Code",
+        "codeUsed": "Code already used",
+        "error": "An error occurred"
+    },
+    "common": {
+        "loading": "Loading...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit"
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "nav": {
+        "title": "ကံကောင်း စပင်",
+        "logout": "ထွက်မည်"
+    },
+    "spin": {
+        "enterCode": "ကုဒ်ထည့်ပါ",
+        "spinNow": "လှည့်ပါ",
+        "spinning": "လှည့်နေသည်..."
+    },
+    "history": {
+        "title": "မှတ်တမ်း",
+        "time": "အချိန်",
+        "user": "အသုံးပြုသူ",
+        "prize": "ဆု",
+        "noHistory": "မှတ်တမ်းမရှိသေးပါ",
+        "filterByDate": "ရက်စွဲဖြင့်စစ်ပါ"
+    },
+    "auth": {
+        "login": "ဝင်မည်",
+        "register": "စာရင်းသွင်းမည်",
+        "username": "အမည်",
+        "password": "စကားဝှက်",
+        "confirmPassword": "စကားဝှက်အတည်ပြုပါ",
+        "loginSuccess": "အောင်မြင်စွာဝင်ရောက်ပြီး!",
+        "registerSuccess": "စာရင်းသွင်းပြီး!",
+        "invalidCredentials": "အမည် သို့ စကားဝှက် မှားနေသည်"
+    },
+    "messages": {
+        "congrats": "ဂုဏ်ယူပါသည်!",
+        "youWon": "သင်ရရှိသည်မှာ",
+        "invalidCode": "ကုဒ်မှားနေသည်",
+        "codeUsed": "ကုဒ်သုံးပြီးပြီ",
+        "error": "အမှားတစ်ခုဖြစ်သွားသည်"
+    },
+    "common": {
+        "loading": "ခဏစောင့်ပါ...",
+        "save": "သိမ်းမည်",
+        "cancel": "မလုပ်တော့ပါ",
+        "confirm": "အတည်ပြုမည်",
+        "delete": "ဖျက်မည်",
+        "edit": "ပြင်မည်"
+    }
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Spin - วงล้อเสี่ยงโชค</title>
+
+    <!-- External Libraries (Tailwind, FontAwesome, Google Fonts) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- เชื่อมต่อไฟล์ CSS ของเรา -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Socket.IO for user presence tracking -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="glass-panel"
+        style="margin: 1rem; padding: 1rem; position: sticky; top: 1rem; z-index: 100; border-radius: 16px;">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-dice text-gold text-3xl"></i>
+                <h1 class="text-2xl font-bold tracking-wider text-gradient-gold" data-i18n="nav.title">
+                    LUCKY SPIN
+                </h1>
+            </div>
+
+            <!-- User Profile & Language -->
+            <div class="flex items-center gap-4">
+                <!-- Language Switcher -->
+                <div id="langSwitcher"></div>
+
+                <!-- User Profile -->
+                <div class="flex items-center gap-4 bg-black/20 px-4 py-2 rounded-full border border-white/5">
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-user text-gold"></i>
+                        <span id="userDisplay" class="text-white font-medium">Guest</span>
+                    </div>
+                    <div class="h-4 w-px bg-white/10"></div>
+                    <button onclick="App.logout()"
+                        class="text-xs text-red-400 hover:text-red-300 transition uppercase tracking-wide font-bold cursor-pointer"
+                        style="position: relative; z-index: 101;" data-i18n="nav.logout">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 flex flex-col lg:flex-row gap-8 items-start justify-center"
+        style="max-width: 1200px;">
+
+        <!-- Wheel Section -->
+        <div class="w-full lg:w-5/12 flex flex-col items-center">
+            <div class="relative py-10 transform transition-transform hover:scale-105 duration-500">
+                <div class="arrow"></div>
+                <canvas id="wheelCanvas" width="300" height="300" class="wheel-container"></canvas>
+
+                <!-- Center Pin (smaller) -->
+                <div
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-yellow-300 to-yellow-600 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.5)] border-3 border-[#090A0F] flex items-center justify-center z-20">
+                    <i class="fa-solid fa-star text-[#090A0F] text-sm"></i>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="glass-panel p-6 w-full max-w-sm text-center space-y-4">
+                <div class="relative">
+                    <input type="text" id="spinCode" data-i18n="spin.enterCode" placeholder="ENTER CODE"
+                        class="input-field text-center tracking-[0.2em] font-bold uppercase placeholder-opacity-30">
+                </div>
+
+                <button id="spinBtn" onclick="App.handleSpin()" class="btn btn-primary w-full py-4 text-xl rounded-xl">
+                    <i class="fa-solid fa-play mr-2"></i> <span data-i18n="spin.spinNow">SPIN NOW</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="w-full lg:w-7/12 glass-panel flex flex-col h-[500px] lg:h-[600px] overflow-hidden">
+            <!-- Header -->
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-black/20">
+                <h3 class="text-lg font-bold text-gold"><i class="fa-solid fa-clock-rotate-left mr-2"></i> <span
+                        data-i18n="history.title">HISTORY</span></h3>
+                <div class="flex gap-2">
+                    <!-- Calendar Button (Replaces Clear) -->
+                    <div class="relative btn btn-ghost text-xs py-1 px-3 rounded overflow-hidden">
+                        <i class="fa-solid fa-calendar-days mr-1 text-gold"></i> DATE
+                        <input type="date" id="historyDateFilter"
+                            class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                            onchange="App.handleDateFilter(this.value)" title="Filter by Date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-grow overflow-y-auto p-4 custom-scroll relative">
+
+                <!-- Desktop Table (Hidden on Mobile) -->
+                <table class="w-full text-left border-collapse hidden md:table">
+                    <thead class="sticky top-0 bg-[#090A0F] z-10 shadow-md">
+                        <tr class="text-muted text-xs uppercase tracking-wider">
+                            <th class="p-3 rounded-l-lg">Time</th>
+                            <th class="p-3">User</th>
+                            <th class="p-3 text-right rounded-r-lg">Prize</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="text-sm"></tbody>
+                </table>
+
+                <!-- Mobile Cards (Visible on Mobile) -->
+                <div id="historyCardList" class="md:hidden flex flex-col gap-2">
+                    <!-- Cards will be injected here via JS -->
+                </div>
+
+                <div id="noResult"
+                    class="hidden absolute inset-0 flex flex-col items-center justify-center text-muted opacity-50">
+                    <i class="fa-solid fa-ghost text-4xl mb-2"></i>
+                    <p>No History Yet</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Result -->
+    <div id="resultModal"
+        class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
+        <div
+            class="glass-panel p-8 rounded-2xl max-w-sm w-full text-center animate-pop relative border border-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.2)]">
+            <button onclick="App.closeModal()"
+                class="absolute top-4 right-4 text-white/50 hover:text-white text-2xl">&times;</button>
+
+            <div
+                class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg text-4xl text-black">
+                <i class="fa-solid fa-gift"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold mb-2 text-white">CONGRATULATIONS!</h2>
+            <p class="text-muted mb-6">You have won</p>
+
+            <div id="modalPrize"
+                class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400 mb-8 filter drop-shadow-lg">
+                -
+            </div>
+
+            <button onclick="App.closeModal()" class="btn btn-primary w-full py-3 rounded-lg">
+                CLAIM PRIZE
+            </button>
+        </div>
+    </div>
+
+    <!-- i18n Multi-language -->
+    <script src="js/i18n.js"></script>
+    <script src="js/spin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Lucky Spin</title>
+    <!-- Fonts: Inter & Kanit -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kanit:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Admin Styles (Light Theme) -->
+    <link rel="stylesheet" href="admin.css">
+    <!-- Socket IO -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-bolt"></i>
+            <h1>ADMIN<span style="color:var(--accent-teal)">PANEL</span></h1>
+        </div>
+
+        <div class="nav-menu">
+            <button onclick="AdminApp.switchSection('overview')" id="nav-overview" class="nav-btn active">
+                <i class="fa-solid fa-grid-2"></i> Overview
+            </button>
+            <button onclick="AdminApp.switchSection('users')" id="nav-users" class="nav-btn">
+                <i class="fa-solid fa-users"></i> Users
+            </button>
+            <button onclick="AdminApp.switchSection('logs')" id="nav-logs" class="nav-btn">
+                <i class="fa-solid fa-list-check"></i> Spin History
+            </button>
+            <button onclick="AdminApp.switchSection('codes')" id="nav-codes" class="nav-btn">
+                <i class="fa-solid fa-ticket"></i> Spin Codes
+            </button>
+            <button onclick="AdminApp.switchSection('prizes')" id="nav-prizes" class="nav-btn">
+                <i class="fa-solid fa-gift"></i> Prizes
+            </button>
+            <button onclick="AdminApp.switchSection('probability')" id="nav-probability" class="nav-btn">
+                <i class="fa-solid fa-percent"></i> Probability
+            </button>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar" id="avatarInitials">A</div>
+            <div class="user-info">
+                <div class="name" id="adminUsername">Admin</div>
+                <div class="role">● Super Admin</div>
+            </div>
+            <button onclick="AdminApp.logout()" class="action-btn"
+                style="width:32px; height:32px; margin-left:auto; border:none; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7);">
+                <i class="fa-solid fa-power-off"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <h2 class="page-title" id="pageTitle">Dashboard Overview</h2>
+
+            <div class="header-actions">
+                <div class="search-wrap">
+                    <i class="fa-solid fa-search search-icon"></i>
+                    <input type="text" id="globalSearch" class="search-input"
+                        placeholder="Search users, codes or logs...">
+                </div>
+                <button onclick="window.location.reload()" class="action-btn" title="Refresh">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button class="action-btn" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-container">
+
+            <!-- SECTION: OVERVIEW -->
+            <section id="section-overview" class="section-view">
+                <!-- KPI Grid -->
+                <div class="grid-cols-4" style="margin-bottom: 32px;">
+                    <!-- Active Users -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="kpi-value" id="kpiActiveUsers">0</div>
+                                <div class="kpi-label">Active Users</div>
+                            </div>
+                            <div class="card-icon icon-green"><i class="fa-solid fa-signal"></i></div>
+                        </div>
+                    </div>
+                    <!-- Total Users -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="kpi-value" id="kpiTotalUsers">-</div>
+                                <div class="kpi-label">Total Users</div>
+                            </div>
+                            <div class="card-icon icon-blue"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                    </div>
+                    <!-- Total Spins -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="kpi-value" id="kpiTotalSpins">-</div>
+                                <div class="kpi-label">Total Spins</div>
+                            </div>
+                            <div class="card-icon icon-purple"><i class="fa-solid fa-dice"></i></div>
+                        </div>
+                    </div>
+                    <!-- Codes -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="kpi-value">
+                                    <span id="kpiAvailableCodes">-</span> <span
+                                        style="font-size:0.6em; color:var(--text-muted); font-weight:500;">/ <span
+                                            id="kpiUsedCodes">-</span></span>
+                                </div>
+                                <div class="kpi-label">Codes (Avail / Used)</div>
+                            </div>
+                            <div class="card-icon icon-orange"><i class="fa-solid fa-ticket"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed & Charts -->
+                <div class="grid-cols-3">
+                    <div class="card colspan-2">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-chart-line text-muted"></i> Recent Activity
+                            </div>
+                            <button class="btn-sm"
+                                style="color:var(--primary); background:none; border:none; cursor:pointer">View
+                                All</button>
+                        </div>
+                        <div id="recentActivityList">
+                            <p class="text-muted" style="text-align:center; padding:20px;">Waiting for events...</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions / Mini Stats -->
+                    <div class="card colspan-1">
+                        <div class="card-header">
+                            <div class="card-title">System Status</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="text-sm font-medium">Server Status</span>
+                                <span class="badge active">Online</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="text-sm font-medium">Socket Connection</span>
+                                <span class="badge active" id="socketStatus">Connected</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="text-sm font-medium">Used Codes</span>
+                                <span class="badge disabled" id="statusUsedCodes">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: USERS -->
+            <section id="section-users" class="section-view hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">User Management</div>
+                        <button onclick="AdminApp.loadUsers()" class="btn-primary btn-sm"><i
+                                class="fa-solid fa-rotate"></i> Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th style="text-align:right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- JS Populates -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: LOGS -->
+            <section id="section-logs" class="section-view hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Spin History</div>
+                        <select id="logsFilterRange" onchange="AdminApp.loadSpinLogs()"
+                            style="padding:6px; border-radius:6px; border:1px solid var(--border-color)">
+                            <option value="today">Today</option>
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>User</th>
+                                    <th>Code</th>
+                                    <th>Prize</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <!-- JS Populates -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: CODES -->
+            <section id="section-codes" class="section-view hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Code Management</div>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="codeSearchInput" placeholder="Search..."
+                                style="padding:6px 12px; border:1px solid var(--border-color); border-radius:6px;">
+                            <button onclick="AdminApp.openGenerateModal()" class="btn-primary btn-sm">
+                                <i class="fa-solid fa-plus"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Usage Info</th>
+                                    <th style="text-align:center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="codesTableBody">
+                                <!-- JS Populates -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Simple Pagination -->
+                    <div style="padding:16px; display:flex; justify-content:center; gap:16px;">
+                        <button onclick="AdminApp.changePage(-1)" class="btn-sm" style="cursor:pointer">Prev</button>
+                        <span id="pageInfo" style="font-size:13px; color:var(--text-muted); align-self:center;">Page
+                            1</span>
+                        <button onclick="AdminApp.changePage(1)" class="btn-sm" style="cursor:pointer">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: PRIZES -->
+            <section id="section-prizes" class="section-view hidden">
+                <div class="card">
+                    <div class="card-header"
+                        style="border-bottom: 1px solid var(--border-color); padding-bottom:16px; margin-bottom:16px;">
+                        <div class="card-title"><i class="fa-solid fa-gift text-muted"></i> Prize Management</div>
+                        <button onclick="AdminApp.openAddPrizeModal()" class="btn-primary btn-sm">+ Add Prize</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40px">#</th>
+                                <th>Name</th>
+                                <th>Color</th>
+                                <th>Probability</th>
+                                <th>Status</th>
+                                <th style="text-align:center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prizesTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted)">
+                                    Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="padding:16px; text-align:center;">
+                        <button onclick="AdminApp.seedDefaultPrizes()" class="btn-sm"
+                            style="background:var(--accent-teal); color:white; border:none; cursor:pointer">
+                            <i class="fa-solid fa-seedling"></i> Seed Default Prizes
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: PROBABILITY -->
+            <section id="section-probability" class="section-view hidden">
+                <div class="card">
+                    <div class="card-header"
+                        style="border-bottom: 1px solid var(--border-color); padding-bottom:16px; margin-bottom:16px;">
+                        <div class="card-title"><i class="fa-solid fa-percent text-muted"></i> Probability Settings
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span id="totalProbability" style="font-size:14px; color:var(--text-muted)">Total: 0%</span>
+                            <button onclick="AdminApp.saveProbabilities()" class="btn-primary btn-sm">Save All</button>
+                        </div>
+                    </div>
+                    <div id="probabilityList" style="display:flex; flex-direction:column; gap:16px; padding:8px 0;">
+                        <div style="text-align:center; padding:20px; color:var(--text-muted)">Loading...</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Generate Modal -->
+    <div id="generateModal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:18px;">Generate Codes</h3>
+                <button onclick="document.getElementById('generateModal').classList.remove('open')"
+                    style="background:none; border:none; cursor:pointer; font-size:18px;">&times;</button>
+            </div>
+            <form onsubmit="AdminApp.handleGenerate(event)" style="display:flex; flex-direction:column; gap:16px;">
+                <div>
+                    <label
+                        style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Amount</label>
+                    <input type="number" name="count" value="1" min="1" max="100"
+                        style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <div>
+                    <label
+                        style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Prefix</label>
+                    <input type="text" name="prefix" placeholder="e.g. VIP"
+                        style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <div>
+                    <label
+                        style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Note</label>
+                    <input type="text" name="note"
+                        style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top:8px;">Generate Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:18px;">Edit User</h3>
+                <button onclick="document.getElementById('editUserModal').classList.remove('open')"
+                    style="background:none; border:none; cursor:pointer; font-size:18px;">&times;</button>
+            </div>
+            <form id="editUserForm" onsubmit="AdminApp.handleEditUser(event)"
+                style="display:flex; flex-direction:column; gap:16px;">
+                <input type="hidden" name="userId">
+                <div>
+                    <label
+                        style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Username</label>
+                    <input type="text" name="username" required
+                        style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <div>
+                    <label
+                        style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">New
+                        Password</label>
+                    <input type="password" name="password" placeholder="Leave blank to keep"
+                        style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top:8px;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Prize Modal -->
+    <div id="prizeModal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:18px;" id="prizeModalTitle">Add Prize</h3>
+                <button onclick="document.getElementById('prizeModal').classList.remove('open')"
+                    style="background:none; border:none; cursor:pointer; font-size:18px;">&times;</button>
+            </div>
+            <form id="prizeForm" onsubmit="AdminApp.handlePrizeSubmit(event)"
+                style="display:flex; flex-direction:column; gap:16px;">
+                <input type="hidden" name="prizeId">
+                <div>
+                    <label
+                        style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Prize
+                        Name</label>
+                    <input type="text" name="name" required placeholder="e.g. 100 THB, Jackpot"
+                        style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <label
+                            style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Color</label>
+                        <input type="color" name="color" value="#E11D48"
+                            style="width:100%; height:40px; padding:4px; border:1px solid var(--border-color); border-radius:8px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label
+                            style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Probability
+                            %</label>
+                        <input type="number" name="probability" value="10" min="0" max="100"
+                            style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" name="isActive" id="prizeIsActive" checked>
+                    <label for="prizeIsActive" style="font-size:13px;">Active (show on wheel)</label>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top:8px;">Save Prize</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logic -->
+    <script src="js/admin.js"></script>
+</body>
+
+</html>
