@@ -15,17 +15,12 @@ const i18n = {
 
     // Initialize i18n
     init: async function () {
-        // Load saved language or detect from browser
+        // Load saved language or use default (mm)
         const savedLang = localStorage.getItem('language');
         if (savedLang && this.supportedLangs.includes(savedLang)) {
             this.currentLang = savedLang;
-        } else {
-            // Auto-detect from browser
-            const browserLang = navigator.language.split('-')[0];
-            if (this.supportedLangs.includes(browserLang)) {
-                this.currentLang = browserLang;
-            }
         }
+        // ✅ ไม่ auto-detect จาก browser อีกต่อไป - ใช้ 'mm' เป็น default
 
         // Load language file
         await this.loadLanguage(this.currentLang);
