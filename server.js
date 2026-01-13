@@ -84,7 +84,26 @@ app.set('io', io); // Make io available in routes via req.app.get('io')
 // 6. Static Files (Updated for Deployment)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 7. Routes
+// 7. Health Check Endpoint (for Render and monitoring)
+app.get('/health', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      database: dbStatus,
+      uptime: process.uptime()
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
+// 8. Routes
 app.get('/', (req, res) => {
   // Redirect to spin page or auth page
   res.redirect('/auth.html');

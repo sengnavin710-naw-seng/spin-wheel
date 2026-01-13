@@ -202,18 +202,28 @@
             <!-- SECTION: LOGS -->
             <section id="section-logs" class="section-view hidden">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
                         <div class="card-title">Spin History</div>
-                        <select id="logsFilterRange" onchange="AdminApp.loadSpinLogs()"
-                            style="padding:6px; border-radius:6px; border:1px solid var(--border-color)">
-                            <option value="today">Today</option>
-                            <option value="7d">Last 7 Days</option>
-                            <option value="30d">Last 30 Days</option>
-                            <option value="custom">Specific Date</option>
-                        </select>
-                        <input type="date" id="logsDateInput" class="hidden"
-                            onchange="AdminApp.handleDateFilterChange(this.value)"
-                            style="padding:6px; border-radius:6px; border:1px solid var(--border-color); background: var(--bg-level-1); color: var(--text-main);">
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <!-- Search Input -->
+                            <div class="search-wrap" style="position: relative; min-width: 200px;">
+                                <i class="fa-solid fa-search"
+                                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                                <input type="text" id="logsSearchInput" placeholder="Search username..."
+                                    style="padding: 8px 12px 8px 36px; border: 1px solid var(--border-color); border-radius: 8px; width: 100%; font-size: 13px; background: var(--bg-level-1); color: var(--text-main);">
+                            </div>
+                            <!-- Date Filter -->
+                            <select id="logsFilterRange" onchange="AdminApp.loadSpinLogs()"
+                                style="padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-level-1); color: var(--text-main);">
+                                <option value="today">Today</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="custom">Specific Date</option>
+                            </select>
+                            <input type="date" id="logsDateInput" class="hidden"
+                                onchange="AdminApp.handleDateFilterChange(this.value)"
+                                style="padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-level-1); color: var(--text-main);">
+                        </div>
                     </div>
                     <div class="table-container">
                         <table>

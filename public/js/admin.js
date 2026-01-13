@@ -6,6 +6,7 @@ const AdminApp = {
     currentSection: 'overview',
     currentPage: 1,
     isAuthenticated: false,
+    logsSearchTimer: null,
 
     init: async function () {
         const authOk = await this.checkAuth();
@@ -25,6 +26,17 @@ const AdminApp = {
         if (searchInput) {
             searchInput.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') this.loadCodes(1);
+            });
+        }
+
+        // Search Listener for Spin Logs (with debounce)
+        const logsSearchInput = document.getElementById('logsSearchInput');
+        if (logsSearchInput) {
+            logsSearchInput.addEventListener('input', () => {
+                clearTimeout(this.logsSearchTimer);
+                this.logsSearchTimer = setTimeout(() => {
+                    this.loadSpinLogs();
+                }, 500); // 500ms debounce
             });
         }
 
@@ -328,7 +340,9 @@ const AdminApp = {
 
     loadSpinLogs: async function () {
         const rangeEl = document.getElementById('logsFilterRange');
+        const searchEl = document.getElementById('logsSearchInput');
         let range = rangeEl ? rangeEl.value : 'today';
+        const search = searchEl ? searchEl.value.trim() : '';
         const dateInput = document.getElementById('logsDateInput');
 
         if (range === 'custom') {
@@ -342,7 +356,8 @@ const AdminApp = {
         }
 
         try {
-            const res = await fetch(`${API_BASE_URL}/api/admin/spin-codes/logs?range=${range}&limit=50`, { credentials: 'include' });
+            const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+            const res = await fetch(`${API_BASE_URL}/api/admin/spin-codes/logs?range=${range}&limit=50${searchParam}`, { credentials: 'include' });
             const data = await res.json();
             const tbody = document.getElementById('logsTableBody');
             if (!tbody) return;
