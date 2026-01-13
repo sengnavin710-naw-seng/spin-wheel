@@ -323,11 +323,21 @@ const App = {
             const data = await res.json();
 
             if (data.ok && data.history && data.history.length > 0) {
-                State.history = data.history.map(h => ({
-                    prize: h.prize,
-                    date: h.timestamp || h.createdAt,
-                    code: h.code
-                }));
+                State.history = data.history.map(h => {
+                    // Format timestamp for display
+                    const timestamp = new Date(h.timestamp);
+                    const dateStr = timestamp.toLocaleDateString('my-MM') + ' ' +
+                        timestamp.toLocaleTimeString('my-MM', { hour: '2-digit', minute: '2-digit' });
+                    const isoDate = timestamp.toISOString().split('T')[0];
+
+                    return {
+                        prize: h.prize,
+                        date: dateStr,
+                        isoDate: isoDate,
+                        code: h.code,
+                        username: State.currentUser // ✅ Include username for filtering
+                    };
+                });
                 console.log('Loaded history from API:', State.history.length, 'records');
                 this.renderHistory();
                 return;
