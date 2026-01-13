@@ -4,7 +4,7 @@
  */
 
 const i18n = {
-    currentLang: 'en',
+    currentLang: 'mm',
     translations: {},
     supportedLangs: ['en', 'th', 'mm'],
     langNames: {

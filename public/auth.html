@@ -44,8 +44,8 @@
   <div class="auth-container glass-panel">
     <div class="text-center mb-8">
       <i class="fa-solid fa-dice text-gold text-4xl mb-2" style="font-size: 3rem;"></i>
-      <h1 class="text-2xl font-bold text-gradient-gold uppercase tracking-wider">Lucky Spin</h1>
-      <p class="text-sm text-muted" style="color: var(--text-muted);">Enter your name to start playing</p>
+      <h1 class="text-2xl font-bold text-gradient-gold uppercase tracking-wider">ကံကောင်း စပင်</h1>
+      <p class="text-sm text-muted" style="color: var(--text-muted);">ကစားရန် နာမည်ထည့်ပါ</p>
     </div>
 
     <div id="messageBox" class="text-center text-sm font-medium h-6 mb-4 transition-all"></div>
@@ -53,19 +53,19 @@
     <!-- Login Form -->
     <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
       <div class="input-group mb-6">
-        <label class="text-xs text-muted mb-2 block uppercase tracking-wider">Player Name</label>
-        <input type="text" id="login-user" class="input-field text-center text-lg font-bold" placeholder="Guest Name"
+        <label class="text-xs text-muted mb-2 block uppercase tracking-wider">ကစားသမား အမည်</label>
+        <input type="text" id="login-user" class="input-field text-center text-lg font-bold" placeholder="ဧည့်သည် အမည်"
           required autocomplete="off">
       </div>
 
       <button type="button" class="btn btn-primary w-full py-3 rounded-lg text-lg" onclick="handleLogin()"
         style="width: 100%; padding: 14px; border-radius: 12px;">
-        START GAME <i class="fa-solid fa-arrow-right ml-2"></i>
+        ကစားမည် <i class="fa-solid fa-arrow-right ml-2"></i>
       </button>
     </form>
 
     <div class="mt-6 text-center">
-      <p class="text-xs text-muted opacity-50">By playing, you agree to our Terms & Conditions</p>
+      <p class="text-xs text-muted opacity-50">ကစားခြင်းဖြင့် စည်းမျဉ်းများကို လက်ခံသည်</p>
     </div>
   </div>
 
@@ -85,14 +85,14 @@
       const username = document.getElementById("login-user").value.trim();
 
       if (!username) {
-        showMessage("Please enter your name", true);
+        showMessage("နာမည်ထည့်ပါ", true);
         return;
       }
 
       // Loading State
       const btn = document.querySelector('#loginForm button');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> CONNECTING...';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ချိတ်ဆက်နေသည်...';
       btn.disabled = true;
 
       try {
@@ -108,17 +108,17 @@
         if (res.ok) {
           const finalUser = (data.username || username).trim();
           localStorage.setItem("username", finalUser);
-          showMessage("Welcome back! Entering Casino...", false);
+          showMessage("ကြိုဆိုပါသည်! ကာစီနိုသို့ဝင်နေသည်...", false);
 
           setTimeout(() => window.location.href = "spin.html", 1000);
         } else {
-          showMessage(data.message || "Access Denied", true);
+          showMessage(data.message || "ဝင်ခွင့်ပိတ်ထားသည်", true);
           btn.innerHTML = originalText;
           btn.disabled = false;
         }
       } catch (err) {
         console.error(err);
-        showMessage("Connection Error", true);
+        showMessage("ချိတ်ဆက်မှုအမှား", true);
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
