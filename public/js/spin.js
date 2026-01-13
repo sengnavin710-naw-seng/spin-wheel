@@ -109,14 +109,14 @@ const App = {
 
     logout: function () {
         Swal.fire({
-            title: 'ต้องการออกจากระบบ?',
-            text: "คุณต้องเข้าสู่ระบบใหม่เพื่อเล่นเกม",
+            title: 'ထွက်မည်လား?',
+            text: "ဂိမ်းကစားရန် ပြန်လည်ဝင်ရောက်ရမည်",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ออกจากระบบ',
-            cancelButtonText: 'ยกเลิก',
+            confirmButtonText: 'ထွက်မည်',
+            cancelButtonText: 'မလုပ်တော့ပါ',
             background: '#090A0F',
             color: '#fff'
         }).then(async (result) => {
@@ -226,8 +226,8 @@ const App = {
                 spinBtn.disabled = false;
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: data.message || 'รหัสไม่ถูกต้อง',
+                    title: 'အိုး...',
+                    text: data.message || 'ကုဒ်မှားနေသည်',
                     background: '#090A0F',
                     color: '#fff'
                 });
@@ -239,8 +239,8 @@ const App = {
             spinBtn.disabled = false;
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                title: 'အမှား',
+                text: 'ချိတ်ဆက်မှုအမှားဖြစ်သွားသည်',
                 background: '#090A0F',
                 color: '#fff'
             });
@@ -353,7 +353,7 @@ const App = {
     },
 
     clearHistory: function () {
-        if (!confirm("ลบประวัติการหมุนทั้งหมดของคุณ?")) return;
+        if (!confirm("မှတ်တမ်းအားလုံးကိုဖျက်မလား?")) return;
 
         State.history = [];
         const key = `spinHistory_${State.currentUser}`;
